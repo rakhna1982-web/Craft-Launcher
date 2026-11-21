@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">CraftLauncher</string>
+    <string name="nav_home">ホーム</string>
+    <string name="nav_versions">バージョン</string>
+    <string name="nav_content">Mod・パック</string>
+    <string name="nav_accounts">アカウント</string>
+    <string name="nav_settings">設定</string>
+    <string name="action_play">プレイ</string>
+    <string name="action_install">インストール</string>
+    <string name="action_switch">切替</string>
+    <string name="status_ready">起動準備完了</string>
+    <string name="status_not_installed">未インストール</string>
+    <string name="status_downloading">ダウンロード中…</string>
+    <string name="section_recently_played">最近プレイしたバージョン</string>
+    <string name="label_local_offline">ローカル / オフライン</string>
+    <string name="label_microsoft_licensed">Microsoftアカウント</string>
+    <string name="error_network_generic">ネットワークエラー。接続を確認して再試行してください。</string>
+</resources>

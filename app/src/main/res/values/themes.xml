@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.CraftLauncher" parent="android:Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@color/obsidian_bg</item>
+    </style>
+
+    <style name="Theme.CraftLauncher.Fullscreen" parent="android:Theme.DeviceDefault.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>

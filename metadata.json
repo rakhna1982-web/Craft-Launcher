@@ -1,0 +1,6 @@
+{
+  "name": "CraftLauncher",
+  "description": "Complete Minecraft: Java Edition Android launcher with Mojang version management, official Microsoft & local offline profiles, Java 8/17/21 runtime manager, Fabric/Forge mod & resource pack management, and OpenGL/touch/keyboard execution surface.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

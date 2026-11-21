@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">CraftLauncher</string>
+    <string name="nav_home">Accueil</string>
+    <string name="nav_versions">Versions</string>
+    <string name="nav_content">Mods &amp; Packs</string>
+    <string name="nav_accounts">Comptes</string>
+    <string name="nav_settings">Paramètres</string>
+    <string name="action_play">JOUER</string>
+    <string name="action_install">Installer</string>
+    <string name="action_switch">Changer</string>
+    <string name="status_ready">Prêt à lancer</string>
+    <string name="status_not_installed">Non installé</string>
+    <string name="status_downloading">Téléchargement…</string>
+    <string name="section_recently_played">Joués récemment</string>
+    <string name="label_local_offline">Local / Hors ligne</string>
+    <string name="label_microsoft_licensed">Compte Microsoft</string>
+    <string name="error_network_generic">Échec réseau. Vérifiez votre connexion et réessayez.</string>
+</resources>
