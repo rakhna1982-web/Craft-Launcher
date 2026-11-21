@@ -116,7 +116,7 @@ fun SettingsScreen(
             item {
                 SectionHeader(
                     title = "Java Runtime Manager",
-                    subtitle = "Detected CPU ABI: $deviceAbi • Auto-matches Java 8, 17, or 21 per MC version",
+                    subtitle = "Detected CPU ABI: $deviceAbi • Auto-matches Java 8, 17, 21, or 25 per MC version",
                     trailing = {
                         StatusPill(text = deviceAbi, color = DiamondCyan)
                     }

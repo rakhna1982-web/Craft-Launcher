@@ -71,7 +71,7 @@ abstract class CraftDatabase : RoomDatabase() {
             }
         }
 
-        fun buildDefaultRuntimeCatalog(context: Context): List<JavaRuntimeEntity> {
+        fun createRuntimeEntryForMajor(context: Context, majorVersion: Int): JavaRuntimeEntity {
             val abi = detectPrimaryAbi()
             val runtimesRoot = File(context.filesDir, "craftlauncher/runtimes")
             val archSlug = when (abi) {
@@ -81,44 +81,30 @@ abstract class CraftDatabase : RoomDatabase() {
                 "x86" -> "x86-32"
                 else -> "aarch64"
             }
-            // Official Adoptium Temurin / OpenJDK API v3 Linux/Android-compatible tarball endpoints
-            // Note: Android bionic execution requires OpenJDK Mobile builds (e.g. Pojav/Amethyst JRE)
-            // or glibc/proot compat. Users can download directly or import a custom JRE archive.
-            return listOf(
-                JavaRuntimeEntity(
-                    id = "jre-21-$abi",
-                    name = "OpenJDK 21 (MC 1.20.5+)",
-                    majorVersion = 21,
-                    versionString = "21.0.6+7",
-                    architecture = abi,
-                    installPath = File(runtimesRoot, "jre21-$abi").absolutePath,
-                    downloadUrl = "https://api.adoptium.net/v3/binary/latest/21/ga/linux/$archSlug/jre/hotspot/normal/eclipse",
-                    sha256 = "",
-                    sizeBytes = 46_500_000L
-                ),
-                JavaRuntimeEntity(
-                    id = "jre-17-$abi",
-                    name = "OpenJDK 17 (MC 1.18 - 1.20.4)",
-                    majorVersion = 17,
-                    versionString = "17.0.14+7",
-                    architecture = abi,
-                    installPath = File(runtimesRoot, "jre17-$abi").absolutePath,
-                    downloadUrl = "https://api.adoptium.net/v3/binary/latest/17/ga/linux/$archSlug/jre/hotspot/normal/eclipse",
-                    sha256 = "",
-                    sizeBytes = 43_200_000L
-                ),
-                JavaRuntimeEntity(
-                    id = "jre-8-$abi",
-                    name = "OpenJDK 8 (MC 1.7.10 - 1.16.5)",
-                    majorVersion = 8,
-                    versionString = "8u442-b06",
-                    architecture = abi,
-                    installPath = File(runtimesRoot, "jre8-$abi").absolutePath,
-                    downloadUrl = "https://api.adoptium.net/v3/binary/latest/8/ga/linux/$archSlug/jre/hotspot/normal/eclipse",
-                    sha256 = "",
-                    sizeBytes = 38_400_000L
-                )
+            val (label, verStr, estSize) = when (majorVersion) {
+                25 -> Triple("OpenJDK 25 (Latest / Snapshots)", "25.0.0+36", 48_000_000L)
+                21 -> Triple("OpenJDK 21 (MC 1.20.5+)", "21.0.6+7", 46_500_000L)
+                17 -> Triple("OpenJDK 17 (MC 1.18 - 1.20.4)", "17.0.14+7", 43_200_000L)
+                8 -> Triple("OpenJDK 8 (MC 1.7.10 - 1.16.5)", "8u442-b06", 38_400_000L)
+                else -> Triple("OpenJDK $majorVersion", "$majorVersion-latest", 45_000_000L)
+            }
+            return JavaRuntimeEntity(
+                id = "jre-$majorVersion-$abi",
+                name = label,
+                majorVersion = majorVersion,
+                versionString = verStr,
+                architecture = abi,
+                installPath = File(runtimesRoot, "jre$majorVersion-$abi").absolutePath,
+                downloadUrl = "https://api.adoptium.net/v3/binary/latest/$majorVersion/ga/linux/$archSlug/jre/hotspot/normal/eclipse",
+                sha256 = "",
+                sizeBytes = estSize
             )
+        }
+
+        fun buildDefaultRuntimeCatalog(context: Context): List<JavaRuntimeEntity> {
+            return listOf(25, 21, 17, 8).map { major ->
+                createRuntimeEntryForMajor(context, major)
+            }
         }
     }
 }

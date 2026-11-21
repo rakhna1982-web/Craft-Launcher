@@ -116,4 +116,14 @@ class CraftLauncherUnitTest {
         assertEquals("19", details.assetIndexId)
         assertEquals("2222", details.clientJar.sha1)
     }
+
+    @Test
+    fun `default runtime catalog includes Java 25 alongside 21 17 and 8`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val runtimes = com.craftlauncher.android.data.local.CraftDatabase.buildDefaultRuntimeCatalog(context)
+        val majors = runtimes.map { it.majorVersion }
+        assertTrue(majors.containsAll(listOf(25, 21, 17, 8)))
+        val java25 = runtimes.first { it.majorVersion == 25 }
+        assertTrue(java25.downloadUrl.contains("/25/ga/linux/"))
+    }
 }

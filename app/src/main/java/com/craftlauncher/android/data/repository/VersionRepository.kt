@@ -253,9 +253,13 @@ class VersionRepository(
 
     private fun inferJavaVersion(versionId: String): Int {
         val parts = versionId.split(".")
+        val major = parts.getOrNull(0)?.toIntOrNull()
+        if (major != null && major >= 26) return 25
+        if (versionId.startsWith("26w")) return 25
         val minor = parts.getOrNull(1)?.toIntOrNull() ?: return 21
         val patch = parts.getOrNull(2)?.toIntOrNull() ?: 0
         return when {
+            minor >= 22 -> 25
             minor >= 21 -> 21
             minor == 20 && patch >= 5 -> 21
             minor >= 18 -> 17

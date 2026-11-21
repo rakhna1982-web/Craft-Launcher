@@ -216,8 +216,23 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     private fun installInstance(instanceId: String, versionUrl: String) {
         viewModelScope.launch {
             val res = versionRepo.installInstance(instanceId, versionUrl)
-            res.onSuccess {
-                _snackbarMessages.tryEmit("${it.name} installed & verified!")
+            res.onSuccess { installed ->
+                _snackbarMessages.tryEmit("${installed.name} installed! Checking Java ${installed.requiredJavaMajor}…")
+                val runtimeId = "jre-${installed.requiredJavaMajor}-$deviceAbi"
+                _runtimeDownload.value = RuntimeDownloadProgress(
+                    runtimeId,
+                    0.05f,
+                    "Checking Java ${installed.requiredJavaMajor}…"
+                )
+                val rtRes = runtimeRepo.ensureRuntimeInstalledForMajor(installed.requiredJavaMajor) { p, status ->
+                    _runtimeDownload.value = RuntimeDownloadProgress(runtimeId, p, status)
+                }
+                _runtimeDownload.value = null
+                rtRes.onSuccess { rt ->
+                    _snackbarMessages.tryEmit("${installed.name} & ${rt.name} ready!")
+                }.onFailure { rtErr ->
+                    _snackbarMessages.tryEmit("Game installed, but Java ${installed.requiredJavaMajor} download failed: ${rtErr.message}")
+                }
                 refreshStorageBreakdown()
             }.onFailure { err ->
                 _snackbarMessages.tryEmit("Install failed: ${err.message}")
@@ -336,8 +351,31 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             res.onSuccess {
                 refreshStorageBreakdown()
                 _snackbarMessages.tryEmit("${it.name} ready")
+                if (_preflightReport.value != null) prepareLaunchPreflight()
             }.onFailure { err ->
                 _snackbarMessages.tryEmit("Runtime download failed: ${err.message}")
+            }
+        }
+    }
+
+    fun autoDownloadJavaForMajor(majorVersion: Int) {
+        viewModelScope.launch {
+            val runtimeId = "jre-$majorVersion-$deviceAbi"
+            _runtimeDownload.value = RuntimeDownloadProgress(
+                runtimeId,
+                0.02f,
+                "Downloading Java $majorVersion…"
+            )
+            val res = runtimeRepo.ensureRuntimeInstalledForMajor(majorVersion) { progress, status ->
+                _runtimeDownload.value = RuntimeDownloadProgress(runtimeId, progress, status)
+            }
+            _runtimeDownload.value = null
+            res.onSuccess {
+                refreshStorageBreakdown()
+                _snackbarMessages.tryEmit("${it.name} installed & verified!")
+                if (_preflightReport.value != null) prepareLaunchPreflight()
+            }.onFailure { err ->
+                _snackbarMessages.tryEmit("Java $majorVersion download failed: ${err.message}")
             }
         }
     }

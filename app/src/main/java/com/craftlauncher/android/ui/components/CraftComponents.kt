@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material.icons.rounded.Gamepad
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -33,6 +34,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -58,6 +60,7 @@ import com.craftlauncher.android.data.model.AvatarPreset
 import com.craftlauncher.android.data.model.LaunchPreflightReport
 import com.craftlauncher.android.ui.theme.AmberSnapshot
 import com.craftlauncher.android.ui.theme.DiamondCyan
+import com.craftlauncher.android.ui.viewmodel.RuntimeDownloadProgress
 import com.craftlauncher.android.ui.theme.EmeraldAccent
 import com.craftlauncher.android.ui.theme.EmeraldDeep
 import com.craftlauncher.android.ui.theme.RedstoneError
@@ -219,6 +222,8 @@ fun formatBytes(bytes: Long): String {
 @Composable
 fun LaunchPreflightSheet(
     report: LaunchPreflightReport,
+    runtimeDownload: RuntimeDownloadProgress? = null,
+    onAutoDownloadJava: (Int) -> Unit = {},
     onDismiss: () -> Unit,
     onOpenGameViewport: (Boolean) -> Unit,
     onGoToVersions: () -> Unit,
@@ -316,14 +321,41 @@ fun LaunchPreflightSheet(
                                     Text("Install Game Files")
                                 }
                             } else if (!check.passed && check.id == "java_runtime") {
-                                OutlinedButton(
-                                    onClick = {
-                                        onDismiss()
-                                        onGoToRuntimes()
-                                    },
-                                    modifier = Modifier.padding(top = 4.dp)
-                                ) {
-                                    Text("Install Java ${report.javaMajorRequired}")
+                                if (runtimeDownload != null) {
+                                    LinearProgressIndicator(
+                                        progress = { runtimeDownload.progress },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 6.dp)
+                                            .height(6.dp)
+                                            .clip(RoundedCornerShape(3.dp))
+                                    )
+                                    Text(
+                                        text = runtimeDownload.status,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DiamondCyan
+                                    )
+                                } else {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    ) {
+                                        Button(
+                                            onClick = { onAutoDownloadJava(report.javaMajorRequired) }
+                                        ) {
+                                            Icon(Icons.Rounded.Download, contentDescription = null, modifier = Modifier.size(16.dp))
+                                            Spacer(Modifier.width(6.dp))
+                                            Text("Auto-Download Java ${report.javaMajorRequired}")
+                                        }
+                                        OutlinedButton(
+                                            onClick = {
+                                                onDismiss()
+                                                onGoToRuntimes()
+                                            }
+                                        ) {
+                                            Text("Runtimes")
+                                        }
+                                    }
                                 }
                             }
                         }

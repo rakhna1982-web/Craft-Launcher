@@ -28,6 +28,22 @@ class RuntimeRepository(
         runtimeDao.insertAllIgnore(CraftDatabase.buildDefaultRuntimeCatalog(context))
     }
 
+    suspend fun ensureRuntimeInstalledForMajor(
+        majorVersion: Int,
+        onProgress: (Float, String) -> Unit
+    ): Result<JavaRuntimeEntity> {
+        val existing = runtimeDao.getInstalledByMajor(majorVersion)
+        if (existing != null && verifyRuntimeDirectory(File(existing.installPath))) {
+            return Result.success(existing)
+        }
+        val abi = CraftDatabase.detectPrimaryAbi()
+        val expectedId = "jre-$majorVersion-$abi"
+        if (runtimeDao.getRuntimeById(expectedId) == null) {
+            runtimeDao.upsertRuntime(CraftDatabase.createRuntimeEntryForMajor(context, majorVersion))
+        }
+        return downloadAndInstallRuntime(expectedId, onProgress)
+    }
+
     suspend fun downloadAndInstallRuntime(
         runtimeId: String,
         onProgress: (Float, String) -> Unit

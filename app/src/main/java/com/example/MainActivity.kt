@@ -336,6 +336,8 @@ fun CraftLauncherRoot(viewModel: LauncherViewModel) {
     preflightReport?.let { report ->
         LaunchPreflightSheet(
             report = report,
+            runtimeDownload = runtimeDownload,
+            onAutoDownloadJava = { viewModel.autoDownloadJavaForMajor(it) },
             onDismiss = { viewModel.dismissPreflightReport() },
             onOpenGameViewport = { nativeReady ->
                 viewModel.dismissPreflightReport()
