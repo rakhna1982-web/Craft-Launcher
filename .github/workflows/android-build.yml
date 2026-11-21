@@ -23,20 +23,36 @@ jobs:
           java-version: '21'
 
       - name: 3. Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
 
       - name: 4. Set up Gradle 9.3.1 & dependency cache
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.3.1'
 
-      - name: 5. Run unit & Robolectric tests
+      - name: 5. Generate CI debug.keystore if absent
+        run: |
+          if [ ! -f debug.keystore ]; then
+            keytool -genkeypair -noprompt \
+              -keystore debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      - name: 6. Run unit & Robolectric tests
         run: gradle :app:testDebugUnitTest --no-daemon
 
-      - name: 6. Build CraftLauncher Debug APK
+      - name: 7. Build CraftLauncher Debug APK
         run: gradle :app:assembleDebug --no-daemon
 
-      - name: 7. Upload APK as downloadable artifact
+      - name: 8. Upload APK as downloadable artifact
         uses: actions/upload-artifact@v4
         with:
           name: CraftLauncher-debug-apk
